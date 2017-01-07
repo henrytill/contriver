@@ -56,7 +56,18 @@ let rec show_lisp_value : lisp_value -> string = function
 
 and unwordsList xs = List.map show_lisp_value xs |> unwords
 
+let show_lisp_error : lisp_error -> string = function
+  | NumArgs (expected, found)      -> "Expected " ^ string_of_int expected ^ "args: found values " ^ unwordsList found
+  | TypeMismatch (expected, found) -> "Invalid type: expected " ^ expected ^ " value, found " ^ show_lisp_value found
+  | BadSpecialForm (message, form) -> message ^ ": " ^ show_lisp_value form
+  | NotFunction (message, func)    -> message ^ ": " ^ func
+  | UnboundVar (message, varname)  -> message ^ ": " ^ varname
+  | Default message                -> "Default error: " ^ message
+
 let lisp_value_printer fmt v =
   Format.fprintf fmt "%s" (show_lisp_value v)
+
+let lisp_error_printer fmt e =
+  Format.fprintf fmt "%s" (show_lisp_error e)
 
 let () = print_endline "nothing yet"
