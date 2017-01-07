@@ -1,3 +1,5 @@
+(* Types *)
+
 type lisp_value =
   | Atom of string
   | List of lisp_value list
@@ -29,14 +31,16 @@ and lisp_error =
 and 'a throws_error = ('a, lisp_error) result
 
 
+(* Printers *)
 
-let unwords = String.concat " "
+let unwords =
+  String.concat " "
 
 let rec show_lisp_value : lisp_value -> string = function
   | Atom name          -> name
-  | List xs            -> "(" ^ unwordsList xs ^ ")"
-  | DottedList (xs, x) -> "(" ^ unwordsList xs ^ " . " ^ show_lisp_value x ^ ")"
-  | Vector xs          -> "#(" ^ unwordsList (Array.to_list xs) ^ ")"
+  | List xs            -> "(" ^ show_list_of_lisp_values xs ^ ")"
+  | DottedList (xs, x) -> "(" ^ show_list_of_lisp_values xs ^ " . " ^ show_lisp_value x ^ ")"
+  | Vector xs          -> "#(" ^ show_list_of_lisp_values (Array.to_list xs) ^ ")"
   | Number x           -> string_of_int x
   | Float x            -> string_of_float x
   | Ratio (x, y)       -> Num.string_of_num x ^ "/" ^ Num.string_of_num y
@@ -54,11 +58,14 @@ let rec show_lisp_value : lisp_value -> string = function
         | None     -> "")
     ^ ") ...)"
 
-and unwordsList xs = List.map show_lisp_value xs |> unwords
+and show_list_of_lisp_values xs =
+  List.map show_lisp_value xs |> unwords
 
 let show_lisp_error : lisp_error -> string = function
-  | NumArgs (expected, found)      -> "Expected " ^ string_of_int expected ^ "args: found values " ^ unwordsList found
-  | TypeMismatch (expected, found) -> "Invalid type: expected " ^ expected ^ " value, found " ^ show_lisp_value found
+  | NumArgs (expected, found)      ->
+    "Expected " ^ string_of_int expected ^ "args: found values " ^ show_list_of_lisp_values found
+  | TypeMismatch (expected, found) ->
+    "Invalid type: expected " ^ expected ^ " value, found " ^ show_lisp_value found
   | BadSpecialForm (message, form) -> message ^ ": " ^ show_lisp_value form
   | NotFunction (message, func)    -> message ^ ": " ^ func
   | UnboundVar (message, varname)  -> message ^ ": " ^ varname
@@ -69,5 +76,8 @@ let lisp_value_printer fmt v =
 
 let lisp_error_printer fmt e =
   Format.fprintf fmt "%s" (show_lisp_error e)
+
+
+(* Entry point *)
 
 let () = print_endline "nothing yet"
