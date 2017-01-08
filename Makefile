@@ -3,16 +3,23 @@ OCB       = ocamlbuild $(OCB_FLAGS)
 
 all: native byte
 
-_build/%:
-	$(OCB) $*
+parser:
+	$(OCB) src/parser.mli
 
-native:
+native: parser
 	$(OCB) src/main.native
 
-byte:
+byte: parser
 	$(OCB) src/main.byte
+
+test: sanity parser
+	$(OCB) -I src test/parser_test.byte
+	ocamlrun parser_test.byte
+
+sanity:
+	ocamlfind query alcotest
 
 clean:
 	$(OCB) -clean
 
-.PHONY: all native byte clean
+.PHONY: all parser native byte sanity clean

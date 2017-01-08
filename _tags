@@ -1,1 +1,2 @@
 <src/main.{byte,native}> : package(num)
+<test/*.{byte,ml}> : package(num), package(alcotest)
