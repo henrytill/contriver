@@ -13,12 +13,15 @@ type lisp_value =
   | Character of char
   | Bool of bool
   | PrimitiveFunc of (lisp_value list -> lisp_value throws_error)
-  | Func of { func_params : string list;
-              func_varargs : string option;
-              func_body : lisp_value list;
-              func_closure : env }
+  | Func of func_t
 
 and env = (string * lisp_value) list ref
+
+and func_t =
+  { func_params : string list;
+    func_varargs : string option;
+    func_body : lisp_value list;
+    func_closure : env }
 
 and lisp_error =
   | NumArgs of int * lisp_value list
@@ -27,6 +30,10 @@ and lisp_error =
   | NotFunction of string * string
   | UnboundVar of string * string
   | Default of string
+
+and ('a, 'b) result =
+  | Ok of 'a
+  | Error of 'b
 
 and 'a throws_error = ('a, lisp_error) result
 
