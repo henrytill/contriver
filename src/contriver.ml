@@ -83,8 +83,3 @@ let lisp_value_printer fmt v =
 
 let lisp_error_printer fmt e =
   Format.fprintf fmt "%s" (show_lisp_error e)
-
-
-(* Entry point *)
-
-let () = print_endline "nothing yet"

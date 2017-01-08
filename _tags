@@ -1,1 +1,1 @@
-<src/contriver.{byte,native}> : package(num)
+<src/main.{byte,native}> : package(num)

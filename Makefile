@@ -7,10 +7,10 @@ _build/%:
 	$(OCB) $*
 
 native:
-	$(OCB) src/contriver.native
+	$(OCB) src/main.native
 
 byte:
-	$(OCB) src/contriver.byte
+	$(OCB) src/main.byte
 
 clean:
 	$(OCB) -clean
