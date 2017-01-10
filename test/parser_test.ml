@@ -8,23 +8,71 @@ let lisp_value_t =
   end in
   (module M : Alcotest.TESTABLE with type t = M.t)
 
-let raw_atom_test () =
+let parse_single_atom () =
   Alcotest.(check lisp_value_t)
     "same lisp_value"
-    [Atom "foo"]
-    (Syntax.parse "foo")
+    [Atom "atom"]
+    (Syntax.parse "atom")
 
-let list_atom_test_01 () =
+let parse_quoted_symbol () =
+  Alcotest.(check lisp_value_t)
+    "same lisp_value"
+    [List [Atom "quote"; Atom "atom"]]
+    (Syntax.parse "'atom")
+
+let parse_list_of_single_atom () =
   Alcotest.(check lisp_value_t)
     "same lisp_value"
     [List [Atom "bang"]]
     (Syntax.parse "(bang)")
 
-let list_atom_test_02 () =
+let parse_function_application () =
   Alcotest.(check lisp_value_t)
     "same lisp_value"
-    [List [Atom "plus"; Number 12; Number 13]]
-    (Syntax.parse "(plus 12 13)")
+    [List [Atom "+"; Number 12; Number 13]]
+    (Syntax.parse "(+ 12 13)")
+
+let parse_list_of_numbers () =
+  Alcotest.(check lisp_value_t)
+    "same lisp_value"
+    [List [Atom "list"; Number 12; Number 13]]
+    (Syntax.parse "(list 12 13)")
+
+let parse_vector_of_numbers () =
+  Alcotest.(check lisp_value_t)
+    "same lisp_value"
+    [Vector [|Number 12; Number 13|]]
+    (Syntax.parse "#(12 13)")
+
+let raise_for_bad_vector () =
+  Alcotest.check_raises
+    "floating hash"
+    (Lexer.SyntaxError "Unexpected char: #")
+    (fun () -> ignore (Syntax.parse "# (12 13)"))
+
+let parse_quoted_list () =
+  Alcotest.(check lisp_value_t)
+    "same lisp_value"
+    [List [Atom "quote"; List [Number 12; Number 13]]]
+    (Syntax.parse "'(12 13)")
+
+let parse_quoted_list_2 () =
+  Alcotest.(check lisp_value_t)
+    "same lisp_value"
+    [List [Atom "quote"; List [Number 12; Number 13]]]
+    (Syntax.parse "' (12 13)")
+
+let parse_dotted_list () =
+  Alcotest.(check lisp_value_t)
+    "same lisp_value"
+    [DottedList ([Number 12], Number 13)]
+    (Syntax.parse "(12 . 13)")
+
+let parse_dotted_list_2 () =
+  Alcotest.(check lisp_value_t)
+    "same lisp_value"
+    [DottedList ([Number 12; Number 14], Number 13)]
+    (Syntax.parse "(12 14 . 13)")
 
 let number_test () =
   Alcotest.(check lisp_value_t)
@@ -44,13 +92,31 @@ let string_test () =
     [String "goliath"]
     (Syntax.parse "\"goliath\"")
 
+let parse_multiple_expressions () =
+  Alcotest.(check lisp_value_t)
+    "same lisp_value"
+    [
+      Vector [|Number 12; Number 13|];
+      List [Atom "quasiquote"; List [List [Atom "unquote"; Atom "a"]; Number 2]]
+    ]
+    (Syntax.parse "#(12 13)\n `(,a 2)")
+
 let parser_set = [
-  "Parse a raw atom",             `Quick, raw_atom_test;
-  "Parse an atom in a list (01)", `Quick, list_atom_test_01;
-  "Parse an atom in a list (02)", `Quick, list_atom_test_02;
-  "Parse a number",               `Quick, number_test;
-  "Parse a float",                `Quick, float_test;
-  "Parse a string",               `Quick, string_test
+  "Parse a single atom",                                      `Quick, parse_single_atom;
+  "Parse a quoted symbol",                                    `Quick, parse_quoted_symbol;
+  "Parse a single atom in a list",                            `Quick, parse_list_of_single_atom;
+  "Parse a basic function application",                       `Quick, parse_function_application;
+  "Parse a list of numbers",                                  `Quick, parse_list_of_numbers;
+  "Parse a vector of numbers",                                `Quick, parse_vector_of_numbers;
+  "Raise a SyntaxError for an improperly constructed vector", `Quick, raise_for_bad_vector;
+  "Parse a quoted list of numbers",                           `Quick, parse_quoted_list;
+  "Parse a quoted list of numbers (2)",                       `Quick, parse_quoted_list_2;
+  "Parse a dotted list of numbers",                           `Quick, parse_dotted_list;
+  "Parse a dotted list of numbers (2)",                       `Quick, parse_dotted_list_2;
+  "Parse a number",                                           `Quick, number_test;
+  "Parse a float",                                            `Quick, float_test;
+  "Parse a string",                                           `Quick, string_test;
+  "Parse multiple expressions",                               `Quick, parse_multiple_expressions
 ]
 
 let () =

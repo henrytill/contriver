@@ -19,17 +19,18 @@ let frac = '.' digit*
 let exp = ['e' 'E'] ['-' '+']? digit+
 let float = digit* frac? exp?
 
+let symbol = ['!' '$' '%' '&' '|' '*' '+' '-' '/' ':' '<' '=' '>' '?' '@' '^' '_' '~']
+
 let white = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
-let id = ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let id = (['a'-'z' 'A'-'Z' '_'] | symbol) (['a'-'z' 'A'-'Z' '0'-'9' '_']* | symbol*)
+
 
 rule read =
   parse
   | white    { read lexbuf }
   | newline  { next_line lexbuf; read lexbuf }
   | id       { ATOM (Lexing.lexeme lexbuf) }
-  | int      { INT (int_of_string (Lexing.lexeme lexbuf)) }
-  | float    { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | "true"   { TRUE }
   | "#t"     { TRUE }
   | "false"  { FALSE }
@@ -37,6 +38,13 @@ rule read =
   | '"'      { read_string (Buffer.create 17) lexbuf }
   | '('      { LEFT_PAREN }
   | ')'      { RIGHT_PAREN }
+  | '#' '('  { HASH_LEFT_PAREN }
+  | '\''     { QUOTE }
+  | '`'      { QUASIQUOTE }
+  | ','      { UNQUOTE }
+  | '.'      { DOT }
+  | int      { INT (int_of_string (Lexing.lexeme lexbuf)) }
+  | float    { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | _        { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof      { EOF }
 

@@ -10,6 +10,11 @@ open Contriver
 %token FALSE
 %token LEFT_PAREN
 %token RIGHT_PAREN
+%token HASH_LEFT_PAREN
+%token QUOTE
+%token UNQUOTE
+%token QUASIQUOTE
+%token DOT
 %token EOF
 
 %start <Contriver.lisp_value list> prog
@@ -25,11 +30,16 @@ list_fields:
   ;
 
 lisp_value:
-  | LEFT_PAREN; vl = list_fields; RIGHT_PAREN { List vl    }
-  | a = ATOM                                  { Atom a     }
-  | s = STRING                                { String s   }
-  | i = INT                                   { Number i   }
-  | x = FLOAT                                 { Float x    }
-  | TRUE                                      { Bool true  }
-  | FALSE                                     { Bool false }
+  | LEFT_PAREN; xs = list_fields; RIGHT_PAREN                      { List xs                     }
+  | LEFT_PAREN; xs = list_fields; DOT; x = lisp_value; RIGHT_PAREN { DottedList (xs, x)          }
+  | HASH_LEFT_PAREN; xs = list_fields; RIGHT_PAREN                 { Vector (Array.of_list xs)   }
+  | QUOTE; x = lisp_value                                          { List [Atom "quote"; x]      }
+  | QUASIQUOTE; x = lisp_value                                     { List [Atom "quasiquote"; x] }
+  | UNQUOTE; x = lisp_value                                        { List [Atom "unquote"; x]    }
+  | a = ATOM                                                       { Atom a                      }
+  | s = STRING                                                     { String s                    }
+  | i = INT                                                        { Number i                    }
+  | x = FLOAT                                                      { Float x                     }
+  | TRUE                                                           { Bool true                   }
+  | FALSE                                                          { Bool false                  }
   ;
