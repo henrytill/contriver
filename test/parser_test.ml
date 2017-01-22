@@ -2,45 +2,45 @@ open Contriver
 
 let lisp_value_t =
   let module M = struct
-    type t = lisp_value list
+    type t = lisp_value
     let equal xs ys = xs = ys
-    let pp ppf xs = Format.pp_print_string ppf (show_list_of_lisp_values xs)
+    let pp ppf xs = Format.pp_print_string ppf (show_lisp_value xs)
   end in
   (module M : Alcotest.TESTABLE with type t = M.t)
 
 let parse_single_atom () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [Atom "atom"]
     (Syntax.parse "atom")
 
 let parse_quoted_symbol () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [List [Atom "quote"; Atom "atom"]]
     (Syntax.parse "'atom")
 
 let parse_list_of_single_atom () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [List [Atom "bang"]]
     (Syntax.parse "(bang)")
 
 let parse_function_application () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [List [Atom "+"; Number 12; Number 13]]
     (Syntax.parse "(+ 12 13)")
 
 let parse_list_of_numbers () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [List [Atom "list"; Number 12; Number 13]]
     (Syntax.parse "(list 12 13)")
 
 let parse_vector_of_numbers () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [Vector [|Number 12; Number 13|]]
     (Syntax.parse "#(12 13)")
 
@@ -51,50 +51,50 @@ let raise_for_bad_vector () =
     (fun () -> ignore (Syntax.parse "# (12 13)"))
 
 let parse_quoted_list () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [List [Atom "quote"; List [Number 12; Number 13]]]
     (Syntax.parse "'(12 13)")
 
 let parse_quoted_list_2 () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [List [Atom "quote"; List [Number 12; Number 13]]]
     (Syntax.parse "' (12 13)")
 
 let parse_dotted_list () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [DottedList ([Number 12], Number 13)]
     (Syntax.parse "(12 . 13)")
 
 let parse_dotted_list_2 () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [DottedList ([Number 12; Number 14], Number 13)]
     (Syntax.parse "(12 14 . 13)")
 
 let number_test () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [Number 42]
     (Syntax.parse "42")
 
 let float_test () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [Float 42.42]
     (Syntax.parse "42.42")
 
 let string_test () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [String "goliath"]
     (Syntax.parse "\"goliath\"")
 
 let parse_multiple_expressions () =
-  Alcotest.(check lisp_value_t)
-    "same lisp_value"
+  Alcotest.(check (list lisp_value_t))
+    "same lisp_value list"
     [
       Vector [|Number 12; Number 13|];
       List [Atom "quasiquote"; List [List [Atom "unquote"; Atom "a"]; Number 2]]
