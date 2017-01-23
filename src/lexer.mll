@@ -12,19 +12,15 @@ let next_line lexbuf =
     }
 }
 
-let int = '-'? ['0'-'9'] ['0'-'9']*
-
-let digit = ['0'-'9']
-let frac = '.' digit*
-let exp = ['e' 'E'] ['-' '+']? digit+
-let float = digit* frac? exp?
-
-let symbol = ['!' '$' '%' '&' '|' '*' '+' '-' '/' ':' '<' '=' '>' '?' '@' '^' '_' '~']
-
-let white = [' ' '\t']+
+let int     = ('-'? ['0'-'9'] ['0'-'9']*)
+let digit   = ['0'-'9']
+let frac    = ('.' digit*)
+let exp     = (['e' 'E'] ['-' '+']? digit+)
+let float   = digit* frac? exp?
+let symbol  = ['!' '$' '%' '&' '|' '*' '+' '-' '/' ':' '<' '=' '>' '?' '@' '^' '_' '~']
+let white   = ([' ' '\t']+)
 let newline = '\r' | '\n' | "\r\n"
-let id = (['a'-'z' 'A'-'Z' '_'] | symbol) (['a'-'z' 'A'-'Z' '0'-'9' '_']* | symbol*)
-
+let id      = (['a'-'z' 'A'-'Z' '_'] | symbol) (['a'-'z' 'A'-'Z' '0'-'9' '_']* | symbol*)
 
 rule read =
   parse

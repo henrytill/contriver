@@ -58,21 +58,21 @@ let rec show_lisp_value : lisp_value -> string = function
   | Bool false         -> "#f"
   | PrimitiveFunc _    -> "<primitive>"
   | Func { func_params = ps; func_varargs = vs } ->
-    "(lambda ("
-    ^ unwords ps
-    ^ (match vs with
-        | Some arg -> " . " ^ arg
-        | None     -> "")
-    ^ ") ...)"
+      "(lambda ("
+      ^ unwords ps
+      ^ (match vs with
+          | Some arg -> " . " ^ arg
+          | None     -> "")
+      ^ ") ...)"
 
 and show_list_of_lisp_values xs =
   List.map show_lisp_value xs |> unwords
 
 let show_lisp_error : lisp_error -> string = function
   | NumArgs (expected, found)      ->
-    "Expected " ^ string_of_int expected ^ "args: found values " ^ show_list_of_lisp_values found
+      "Expected " ^ string_of_int expected ^ "args: found values " ^ show_list_of_lisp_values found
   | TypeMismatch (expected, found) ->
-    "Invalid type: expected " ^ expected ^ " value, found " ^ show_lisp_value found
+      "Invalid type: expected " ^ expected ^ " value, found " ^ show_lisp_value found
   | BadSpecialForm (message, form) -> message ^ ": " ^ show_lisp_value form
   | NotFunction (message, func)    -> message ^ ": " ^ func
   | UnboundVar (message, varname)  -> message ^ ": " ^ varname
