@@ -1,5 +1,8 @@
-OCB_FLAGS = -use-ocamlfind -use-menhir
-OCB       = ocamlbuild $(OCB_FLAGS)
+OCB_FLAGS    = -use-ocamlfind -use-menhir
+OCB          = ocamlbuild $(OCB_FLAGS)
+OPAM_INSTALL = opam install -y
+
+DEPENDENCIES = alcotest
 
 all: native
 
@@ -12,12 +15,15 @@ native: parser
 byte: parser
 	$(OCB) src/main.byte
 
-test: deps parser
+test: parser
 	$(OCB) -I src test/parser_test.byte
 	./parser_test.byte
 
 deps:
-	ocamlfind query alcotest || opam install alcotest
+	@which ocamlfind || $(OPAM_INSTALL) ocamlfind
+	@which ocamlbuild || $(OPAM_INSTALL) ocamlbuild
+	@which menhir || $(OPAM_INSTALL) menhir
+	@ocamlfind query $(DEPENDENCIES) || $(OPAM_INSTALL) $(DEPENDENCIES)
 
 clean:
 	$(OCB) -clean
