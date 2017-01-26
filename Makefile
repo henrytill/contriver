@@ -1,7 +1,7 @@
 OCB_FLAGS = -use-ocamlfind -use-menhir
 OCB       = ocamlbuild $(OCB_FLAGS)
 
-all: native byte
+all: native
 
 parser:
 	$(OCB) src/parser.mli
@@ -12,14 +12,14 @@ native: parser
 byte: parser
 	$(OCB) src/main.byte
 
-test: sanity parser
+test: deps parser
 	$(OCB) -I src test/parser_test.byte
-	ocamlrun parser_test.byte
+	./parser_test.byte
 
-sanity:
-	ocamlfind query alcotest
+deps:
+	ocamlfind query alcotest || opam install alcotest
 
 clean:
 	$(OCB) -clean
 
-.PHONY: all parser native byte sanity clean
+.PHONY: all parser native byte test deps clean
