@@ -1,0 +1,9 @@
+language: c
+sudo: required
+before_install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-ocaml.sh
+install: bash -ex .travis-ocaml.sh
+script: make && make test
+env:
+  - OCAML_VERSION=4.02
+  - OCAML_VERSION=4.03
+  - OCAML_VERSION=4.04
