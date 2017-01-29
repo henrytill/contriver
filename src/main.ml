@@ -23,7 +23,7 @@ let () =
   let continue = ref true in
   let in_channel = Pervasives.stdin in
   let out_channel = Pervasives.stdout in
-  let env = ref [] in
+  let env = Evaluator.primitive_bindings in
   flush_str out_channel "Welcome to Contriver\n";
   try
     while !continue do

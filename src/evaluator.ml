@@ -1,12 +1,5 @@
 open Contriver
 
-(* Unpackers *)
-
-let unpack_bool : lisp_value -> bool throws_error = function
-  | Bool b -> Ok b
-  | x      -> Error (TypeMismatch ("bool", x))
-
-
 (* List primitives *)
 
 let zip xs ys =
@@ -41,6 +34,28 @@ let rec eqv : lisp_value list -> lisp_value throws_error = function
   | x                                        -> Error (NumArgs (2, x))
 
 
+(* Unpackers *)
+
+type 'a unpacker = lisp_value -> 'a throws_error
+
+let unpack_num : int unpacker = function
+  | Number n -> Ok(n)
+  | x        -> Error (TypeMismatch ("number", x))
+
+let unpack_bool : bool unpacker = function
+  | Bool b -> Ok b
+  | x      -> Error (TypeMismatch ("bool", x))
+
+let unpack_str : string unpacker = function
+  | String s -> Ok s
+  | x        -> Error (TypeMismatch ("string", x))
+
+let unpack_equals a b (unpacker : 'a unpacker) =
+  unpacker a >>= fun upa ->
+  unpacker b >>= fun upb ->
+  Ok (upa = upb)
+
+
 (* Environment handling *)
 let get_var env var =
   try
@@ -61,9 +76,8 @@ let define_var env var value =
   Ok value
 
 let bind_vars env bindings =
-  List.iter
-    (fun (var, value) ->
-       env := (var, value) :: List.remove_assoc var !env)
+  List.iter (fun (var, value) ->
+      env := (var, value) :: List.remove_assoc var !env)
     bindings;
   env
 
@@ -118,9 +132,136 @@ let isNone = function
   | None   -> true
 
 
+(* Unary Operations *)
+
+let symbolp = function
+  | Atom _ -> Bool true
+  | _      -> Bool false
+
+let numberp = function
+  | Number _ -> Bool true
+  | _        -> Bool false
+
+let stringp = function
+  | String _ -> Bool true
+  | _        -> Bool false
+
+let boolp = function
+  | Bool _ -> Bool true
+  | _      -> Bool false
+
+let listp = function
+  | List _       -> Bool true
+  | DottedList _ -> Bool true
+  | _            -> Bool false
+
+let symbol_to_string = function
+  | Atom s -> String s
+  | _      -> String ""
+
+let string_to_symbol = function
+  | String s -> Atom s
+  | _        -> Atom ""
+
+
+(* List primitives *)
+
+let car = function
+  | [List (x :: _)]          -> Ok x
+  | [DottedList (x :: _, _)] -> Ok x
+  | [x]                      -> Error (TypeMismatch ("pair", x))
+  | x                        -> Error (NumArgs (1, x))
+
+let cdr = function
+  | [List (_ :: xs)]               -> Ok (List xs)
+  | [DottedList (_ :: s :: xs, x)] -> Ok (DottedList (s :: xs, x))
+  | [DottedList ([_], x)]          -> Ok x
+  | [x]                            -> Error (TypeMismatch ("pair", x))
+  | x                              -> Error (NumArgs (1, x))
+
+let cons = function
+  | [h; List []]            -> Ok (List [h])
+  | [h; List xs]            -> Ok (List (h :: xs))
+  | [h; DottedList (xs, x)] -> Ok (DottedList (h :: xs, x))
+  | [h; x]                  -> Ok (DottedList ([h], x))
+  | h                       -> Error (NumArgs (2, h))
+
+
 (* Eval and friends *)
 
 exception Eval_error of lisp_error
+
+let numeric_bin_op op = function
+  | [] as param ->
+      Error (NumArgs (2, param))
+  | hd :: tl    ->
+      List.fold_left
+        (fun acc c ->
+           match acc, c with
+           | Ok (Number x), Number y -> Ok (Number (op x y))
+           | _,             _        -> raise (Failure "numeric_bin_op: this should never happen"))
+        (Ok hd)
+        tl
+
+let unary_op f = function
+  | [v] -> Ok (f v)
+  | x   -> Error (NumArgs (1, x))
+
+let bool_bin_op unpacker op = function
+  | [a; b] ->
+      unpacker a >>= fun l ->
+      unpacker b >>= fun r ->
+      Ok (Bool (op l r))
+  | x ->
+      Error (NumArgs (1, x))
+
+let num_bool_bin_op =
+  bool_bin_op unpack_num
+
+let str_bool_bin_op =
+  bool_bin_op unpack_str
+
+let bool_bool_bin_op =
+  bool_bin_op unpack_bool
+
+let primitives =
+  [ ("+",              numeric_bin_op (+))
+  ; ("-",              numeric_bin_op (-))
+  ; ("*",              numeric_bin_op ( * ))
+  ; ("/",              numeric_bin_op (/))
+  ; ("mod",            numeric_bin_op (mod))
+  ; ("symbol?",        unary_op symbolp)
+  ; ("number?",        unary_op numberp)
+  ; ("string?",        unary_op stringp)
+  ; ("bool?",          unary_op boolp)
+  ; ("list?",          unary_op listp)
+  ; ("symbol->string", unary_op symbol_to_string)
+  ; ("string->symbol", unary_op string_to_symbol)
+  ; ("=",              num_bool_bin_op (==))
+  ; ("<",              num_bool_bin_op (<))
+  ; (">",              num_bool_bin_op (>))
+  ; ("/=",             num_bool_bin_op (<>))
+  ; (">=",             num_bool_bin_op (>=))
+  ; ("<=",             num_bool_bin_op (<=))
+  ; ("&&",             bool_bool_bin_op (&&))
+  ; ("||",             bool_bool_bin_op (||))
+  ; ("string=?",       str_bool_bin_op (==))
+  ; ("string<?",       str_bool_bin_op (<))
+  ; ("string>?",       str_bool_bin_op (>))
+  ; ("string<=?",      str_bool_bin_op (<=))
+  ; ("string>=?",      str_bool_bin_op (>=))
+  ; ("car",            car)
+  ; ("cdr",            cdr)
+  ; ("eqv?",           eqv)
+  ; ("eq?",            eqv)
+  ]
+
+let primitive_bindings =
+  let bindings = ref [] in
+  let make_prim_func (var, func) = var, PrimitiveFunc func in
+  let all_primitives = List.map make_prim_func primitives in
+  bindings := all_primitives @ !bindings;
+  bindings
 
 let rec eval env = function
   | String _ | Number _ | Bool _ as v ->
