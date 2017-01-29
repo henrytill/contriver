@@ -134,23 +134,15 @@ and cond_exp env = function
 
 and case_exp env key = function
   | List (Atom "else" :: then_body) :: _ ->
-      begin
-        match eval_list env then_body with
-        | Ok xs          -> last xs
-        | Error _ as err -> err
-      end
+      eval_list env then_body >>= last
   | List (List datums :: then_body) :: clauses ->
-      begin
-        eval env key           >>= fun result      ->
-        contains result datums >>= fun found_match ->
-        if found_match = Bool true then
-          match eval_list env then_body with
-          | Ok xs          -> last xs
-          | Error _ as err -> err
-        else
-          case_exp env key clauses
-      end
-  | [] as x ->
-      Error (NumArgs (1, x))    (* R5RS "undefined" *)
+      eval env key           >>= fun result      ->
+      contains result datums >>= fun found_match ->
+      if found_match = Bool true then
+        eval_list env then_body >>= last
+      else
+        case_exp env key clauses
+  | [] ->
+      Error Undefined
   | clauses ->
       Error (BadSpecialForm ("Ill-formed case expression", List (Atom "case" :: key :: clauses)))
