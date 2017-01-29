@@ -361,10 +361,10 @@ and apply func args =
             | Some arg_name -> bind_vars env [arg_name, List remaining_args]
             | None          -> env
           in
-          let eval_body env = eval_list env func_body >>= last in
+          let eval_body bod env = eval_list env bod >>= last in
           bind_vars func_closure (zip func_params args)
           |> bind_varargs func_varargs
-          |> eval_body
+          |> eval_body func_body
         end
   | x ->
       Error (TypeMismatch ("func", x))
