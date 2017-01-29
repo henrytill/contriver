@@ -60,6 +60,13 @@ let define_var env var value =
   env := (var, value) :: List.remove_assoc var !env;
   Ok value
 
+let bind_vars env bindings =
+  List.iter
+    (fun (var, value) ->
+       env := (var, value) :: List.remove_assoc var !env)
+    bindings;
+  env
+
 
 (* Helper functions *)
 
@@ -85,21 +92,69 @@ let rec last = function
   | x :: [] -> Ok x
   | _ :: xs -> last xs
 
+let rec drop n xs =
+  match xs with
+  | []      -> []
+  | _ :: tl -> if n = 0 then xs else drop (n - 1) tl
+
+
+(* Functions *)
+
+let make_func varargs closure params body =
+  let ps = List.map show_lisp_value params in
+  Ok (Func { func_params  = ps;
+             func_varargs = varargs;
+             func_body    = body;
+             func_closure = closure; })
+
+let make_normal_func =
+  make_func None
+
+let make_varargs x =
+  make_func (Some (show_lisp_value x))
+
+let isNone = function
+  | Some _ -> false
+  | None   -> true
+
 
 (* Eval and friends *)
 
 exception Eval_error of lisp_error
 
 let rec eval env = function
-  | String _ | Number _ | Bool _ as v                  -> Ok v
-  | Atom x                                             -> get_var env x
-  | List [Atom "quote"; v]                             -> Ok v
-  | List [Atom "if"; predicate; consequent; alternate] -> if_exp env predicate consequent alternate
-  | List (Atom "cond" :: clauses)                      -> cond_exp env clauses
-  | List (Atom "case" :: key :: clauses)               -> case_exp env key clauses
-  | List [Atom "set!";   Atom var; form]               -> eval env form >>= set_var env var
-  | List [Atom "define"; Atom var; form]               -> eval env form >>= define_var env var
-  | x                                                  -> Ok x
+  | String _ | Number _ | Bool _ as v ->
+      Ok v
+  | Atom x ->
+      get_var env x
+  | List [Atom "quote"; v] ->
+      Ok v
+  | List [Atom "if"; predicate; consequent; alternate] ->
+      if_exp env predicate consequent alternate
+  | List (Atom "cond" :: clauses) ->
+      cond_exp env clauses
+  | List (Atom "case" :: key :: clauses) ->
+      case_exp env key clauses
+  | List [Atom "set!";   Atom var; form] ->
+      eval env form >>= set_var env var
+  | List [Atom "define"; Atom var; form] ->
+      eval env form >>= define_var env var
+  | List (Atom "define" :: List (Atom var :: params) :: body) ->
+      make_normal_func env params body >>= define_var env var
+  | List (Atom "define" :: DottedList ((Atom var :: params), varargs) :: body) ->
+      make_varargs varargs env params body >>= define_var env var
+  | List (Atom "lambda" :: List params :: body) ->
+      make_normal_func env params body
+  | List (Atom "lambda" :: DottedList (params, varargs) :: body)->
+      make_varargs varargs env params body
+  | List (Atom "lambda" :: (Atom _ as varargs) :: body) ->
+      make_varargs varargs env [] body
+  | List (f :: args) ->
+      eval env f         >>= fun func ->
+      eval_list env args >>= fun arg_vals ->
+      apply func arg_vals
+  | bad_form ->
+      Error (BadSpecialForm ("Unrecognized special form", bad_form))
 
 and eval_list env xs =
   try
@@ -146,3 +201,27 @@ and case_exp env key = function
       Error Undefined
   | clauses ->
       Error (BadSpecialForm ("Ill-formed case expression", List (Atom "case" :: key :: clauses)))
+
+and apply func args =
+  match func with
+  | PrimitiveFunc f ->
+      f args
+  | Func { func_params; func_varargs; func_body; func_closure } ->
+      let num = List.length in
+      if (num func_params) <> (num args) && isNone func_varargs then
+        Error (NumArgs (num func_params, args))
+      else
+        begin
+          let remaining_args = drop (num func_params) args in
+          let bind_varargs args env =
+            match args with
+            | Some arg_name -> bind_vars env [arg_name, List remaining_args]
+            | None          -> env
+          in
+          let eval_body env = eval_list env func_body >>= last in
+          bind_vars func_closure (zip func_params args)
+          |> bind_varargs func_varargs
+          |> eval_body
+        end
+  | x ->
+      Error (TypeMismatch ("func", x))
