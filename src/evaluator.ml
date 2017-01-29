@@ -350,9 +350,10 @@ and case_exp env key = function
 and let_exp env bindings body =
   let closure = ref [] in
   let collect_let_bindings =
-    List.fold_left (fun acc -> function
-        | List [Atom var; value] -> (var, value) :: acc
-        | _  -> raise (Failure "ill-formed let expression"))
+    List.fold_left
+      (fun acc -> function
+         | List [Atom var; value] -> (var, value) :: acc
+         | _  -> raise (Eval_error (BadSpecialForm ("ill-formed let expression", List bindings))))
       []
   in
   let eval_body bod env = eval_list env bod >>= last in
@@ -360,8 +361,8 @@ and let_exp env bindings body =
     closure := !env;
     bind_vars closure (collect_let_bindings bindings)
     |> eval_body body
-  with
-    Failure msg -> Error (BadSpecialForm (msg, List bindings))
+  with Eval_error e ->
+    Error e
 
 and apply func args =
   match func with
