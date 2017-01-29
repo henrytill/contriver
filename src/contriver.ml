@@ -44,8 +44,8 @@ and 'a throws_error = ('a, lisp_error) result
 
 let (>>=) result f =
   match result with
-  | Ok x -> f x
-  | e    -> e
+  | Ok x           -> f x
+  | Error _ as err -> err
 
 
 (* Printers *)
