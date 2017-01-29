@@ -47,6 +47,10 @@ let (>>=) result f =
   | Ok x           -> f x
   | Error _ as err -> err
 
+let option_to_result error = function
+  | Some x -> Ok x
+  | None   -> Error error
+
 
 (* Printers *)
 

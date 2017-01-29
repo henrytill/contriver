@@ -41,6 +41,8 @@ val (>>=) : 'a throws_error -> ('a -> 'b throws_error) -> 'b throws_error
 
 val show_lisp_value : lisp_value -> string
 
+val option_to_result : 'a -> 'b option -> ('b, 'a) result
+
 val show_list_of_lisp_values : lisp_value list -> string
 
 val show_lisp_error : lisp_error -> string
