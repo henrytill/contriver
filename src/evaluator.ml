@@ -114,8 +114,10 @@ let rec drop n xs =
 
 (* Functions *)
 
-let make_func varargs closure params body =
+let make_func varargs env params body =
+  let closure = ref [] in
   let ps = List.map show_lisp_value params in
+  closure := !env;
   Ok (Func { func_params  = ps;
              func_varargs = varargs;
              func_body    = body;
