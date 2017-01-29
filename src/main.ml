@@ -14,9 +14,9 @@ let eval_string out_channel env expr =
   match
     Syntax.read_expr_list Syntax.parse expr >>= Evaluator.eval_list env
   with
-  | Ok(vs) ->
+  | Ok vs ->
       list_of_lisp_values_printer formatter vs
-  | Error(e) ->
+  | Error e ->
       lisp_error_printer formatter e
 
 let () =

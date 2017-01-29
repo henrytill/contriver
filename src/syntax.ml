@@ -6,7 +6,7 @@ let parse s : lisp_value list =
   ast
 
 let read_expr_list parser s : lisp_value list throws_error =
-  try Ok(parser s)
+  try Ok (parser s)
   with
-  | Lexer.SyntaxError(msg) -> Error(Syntax(msg))
-  | _                      -> Error(Syntax("ill-formed expression"))
+  | Lexer.SyntaxError msg -> Error (Syntax msg)
+  | _                     -> Error (Syntax "ill-formed expression")
