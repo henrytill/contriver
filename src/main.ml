@@ -12,7 +12,7 @@ let eval_string out_channel env expr =
   let open Contriver in
   let formatter = Format.formatter_of_out_channel out_channel in
   match
-    Syntax.read_expr_list Syntax.parse expr >>= Evaluator.eval env
+    Syntax.read_expr_list Syntax.parse expr >>= Evaluator.eval_list env
   with
   | Ok(vs) ->
       list_of_lisp_values_printer formatter vs
