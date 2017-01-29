@@ -1,2 +1,3 @@
-<src/main.{byte,native}> : use_nums
-<test/*.{byte,ml}> : use_nums, package(alcotest)
+true     : bin_annot
+<src/*>  : package(num)
+<test/*> : package(num), package(alcotest)
