@@ -80,7 +80,7 @@ and show_list_of_lisp_values xs =
 let show_lisp_error : lisp_error -> string = function
   | Syntax (message)               -> "Syntax error: " ^ message
   | NumArgs (expected, found)      ->
-      "Expected " ^ string_of_int expected ^ "args: found values " ^ show_list_of_lisp_values found
+      "Expected " ^ string_of_int expected ^ " args: found values " ^ show_list_of_lisp_values found
   | TypeMismatch (expected, found) ->
       "Invalid type: expected " ^ expected ^ " value, found " ^ show_lisp_value found
   | BadSpecialForm (message, form) -> message ^ ": " ^ show_lisp_value form
