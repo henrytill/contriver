@@ -24,6 +24,7 @@ and func_t =
     func_closure : env }
 
 and lisp_error =
+  | Syntax of string
   | NumArgs of int * lisp_value list
   | TypeMismatch of string * lisp_value
   | BadSpecialForm of string * lisp_value
@@ -36,6 +37,14 @@ and ('a, 'b) result =
   | Error of 'b
 
 and 'a throws_error = ('a, lisp_error) result
+
+
+(* Utility functions *)
+
+let (>>=) result f =
+  match result with
+  | Ok x -> f x
+  | e    -> e
 
 
 (* Printers *)
@@ -69,6 +78,7 @@ and show_list_of_lisp_values xs =
   List.map show_lisp_value xs |> unwords
 
 let show_lisp_error : lisp_error -> string = function
+  | Syntax (message)               -> "Syntax error: " ^ message
   | NumArgs (expected, found)      ->
       "Expected " ^ string_of_int expected ^ "args: found values " ^ show_list_of_lisp_values found
   | TypeMismatch (expected, found) ->
@@ -81,5 +91,12 @@ let show_lisp_error : lisp_error -> string = function
 let lisp_value_printer fmt v =
   Format.fprintf fmt "%s" (show_lisp_value v)
 
+let list_of_lisp_values_printer fmt vs =
+  (Format.pp_print_list lisp_value_printer) fmt vs;
+  Format.pp_print_newline fmt ();
+  Format.pp_print_flush fmt ()
+
 let lisp_error_printer fmt e =
-  Format.fprintf fmt "%s" (show_lisp_error e)
+  Format.fprintf fmt "%s" (show_lisp_error e);
+  Format.pp_print_newline fmt ();
+  Format.pp_print_flush fmt ()
