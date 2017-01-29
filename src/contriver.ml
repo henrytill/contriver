@@ -95,7 +95,9 @@ let show_lisp_error : lisp_error -> string = function
   | Undefined                      -> "<undefined>"
 
 let lisp_value_printer fmt v =
-  Format.fprintf fmt "%s" (show_lisp_value v)
+  Format.fprintf fmt "%s" (show_lisp_value v);
+  Format.pp_print_newline fmt ();
+  Format.pp_print_flush fmt ()
 
 let list_of_lisp_values_printer fmt vs =
   (Format.pp_print_list lisp_value_printer) fmt vs;

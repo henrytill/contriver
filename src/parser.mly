@@ -17,12 +17,13 @@ open Contriver
 %token DOT
 %token EOF
 
-%start <Contriver.lisp_value list> prog
+%start <Contriver.lisp_value option> prog
 
 %%
 
 prog:
-  | xs = list_fields; EOF { xs }
+  | x = lisp_value { Some(x) }
+  | EOF            { None    }
   ;
 
 list_fields:

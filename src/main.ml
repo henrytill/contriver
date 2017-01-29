@@ -4,34 +4,43 @@ let flush_str out_channel str =
   output_string out_channel str;
   flush out_channel
 
-let read_prompt out_channel in_channel prompt : string =
-  flush_str out_channel prompt;
-  input_line in_channel
+let parse_with_error lexbuf =
+  let open Contriver in
+  try
+    let ast = Parser.prog Lexer.read lexbuf in
+    Ok (ast)
+  with
+  | Lexer.SyntaxError msg -> Error (Syntax msg)
+  | Parser.Error          -> Error (Syntax "ill-formed expression")
 
-let eval_string out_channel env expr =
+let read_eval_print lexbuf out_channel env =
   let open Contriver in
   let formatter = Format.formatter_of_out_channel out_channel in
-  match
-    Syntax.read_expr_list Syntax.parse expr >>= Evaluator.eval_list env
-  with
-  | Ok vs ->
-      list_of_lisp_values_printer formatter vs
+  match parse_with_error lexbuf with
   | Error e ->
-      lisp_error_printer formatter e
+      lisp_error_printer formatter e;
+      true
+  | Ok(None)   ->
+      false
+  | Ok(Some v) ->
+      begin
+        match Evaluator.eval env v with
+        | Ok v    -> lisp_value_printer formatter v
+        | Error e -> lisp_error_printer formatter e
+      end;
+      true
 
 let () =
   let continue = ref true in
   let in_channel = Pervasives.stdin in
   let out_channel = Pervasives.stdout in
+  let lexbuf = Lexing.from_channel in_channel in
   let env = Evaluator.primitive_bindings in
   flush_str out_channel "Welcome to Contriver\n";
   try
     while !continue do
-      let input = read_prompt out_channel in_channel "><> " in
-      if input = ":quit" then
-        continue := false
-      else
-        eval_string out_channel env input;
+      flush_str out_channel "><> ";
+      continue := read_eval_print lexbuf out_channel env
     done;
     raise End_of_file
   with
