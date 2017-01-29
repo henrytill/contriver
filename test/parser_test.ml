@@ -3,8 +3,8 @@ open Contriver
 let lisp_value_t =
   let module M = struct
     type t = lisp_value
-    let equal xs ys = xs = ys
-    let pp ppf xs = Format.pp_print_string ppf (show_lisp_value xs)
+    let equal x y = x = y
+    let pp = lisp_value_printer
   end in
   (module M : Alcotest.TESTABLE with type t = M.t)
 
