@@ -20,16 +20,16 @@ let float   = digit* frac? exp?
 let symbol  = ['!' '$' '%' '&' '|' '*' '+' '-' '/' ':' '<' '=' '>' '?' '@' '^' '_' '~']
 let white   = ([' ' '\t']+)
 let newline = '\r' | '\n' | "\r\n"
-let id      = (['a'-'z' 'A'-'Z' '_'] | symbol) (['a'-'z' 'A'-'Z' '0'-'9' '_']* | symbol*)
+let id      = (['a'-'z' 'A'-'Z' '_'] | symbol) (['a'-'z' 'A'-'Z' '0'-'9' '_'] | symbol)*
 
 rule read =
   parse
   | white    { read lexbuf }
   | newline  { next_line lexbuf; read lexbuf }
-  | id       { ATOM (Lexing.lexeme lexbuf) }
   | "true"   { TRUE }
-  | "#t"     { TRUE }
   | "false"  { FALSE }
+  | id       { ATOM (Lexing.lexeme lexbuf) }
+  | "#t"     { TRUE }
   | "#f"     { FALSE }
   | '"'      { read_string (Buffer.create 17) lexbuf }
   | '('      { LEFT_PAREN }
