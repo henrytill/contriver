@@ -31,6 +31,7 @@ and lisp_error =
   | NotFunction of string * string
   | UnboundVar of string * string
   | Default of string
+  | Undefined
 
 and ('a, 'b) result =
   | Ok of 'a
@@ -87,6 +88,7 @@ let show_lisp_error : lisp_error -> string = function
   | NotFunction (message, func)    -> message ^ ": " ^ func
   | UnboundVar (message, varname)  -> message ^ ": " ^ varname
   | Default message                -> "Default error: " ^ message
+  | Undefined                      -> "<undefined>"
 
 let lisp_value_printer fmt v =
   Format.fprintf fmt "%s" (show_lisp_value v)
