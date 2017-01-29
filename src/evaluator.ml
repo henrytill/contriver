@@ -280,6 +280,8 @@ let rec eval env = function
       case_exp env key clauses
   | List [Atom "set!";   Atom var; form] ->
       eval env form >>= set_var env var
+  | List (Atom "let" :: List bindings :: body) ->
+      let_exp env bindings body
   | List [Atom "define"; Atom var; form] ->
       eval env form >>= define_var env var
   | List (Atom "define" :: List (Atom var :: params) :: body) ->
@@ -344,6 +346,22 @@ and case_exp env key = function
       Error Undefined
   | clauses ->
       Error (BadSpecialForm ("Ill-formed case expression", List (Atom "case" :: key :: clauses)))
+
+and let_exp env bindings body =
+  let closure = ref [] in
+  let collect_let_bindings =
+    List.fold_left (fun acc -> function
+        | List [Atom var; value] -> (var, value) :: acc
+        | _  -> raise (Failure "ill-formed let expression"))
+      []
+  in
+  let eval_body bod env = eval_list env bod >>= last in
+  try
+    closure := !env;
+    bind_vars closure (collect_let_bindings bindings)
+    |> eval_body body
+  with
+    Failure msg -> Error (BadSpecialForm (msg, List bindings))
 
 and apply func args =
   match func with
