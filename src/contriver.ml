@@ -18,10 +18,10 @@ type lisp_value =
 and env = (string * lisp_value) list ref
 
 and func_t =
-  { func_params : string list;
-    func_varargs : string option;
-    func_body : lisp_value list;
-    func_closure : env }
+  { params  : string list;
+    varargs : string option;
+    body    : lisp_value list;
+    closure : env }
 
 and lisp_error =
   | Syntax of string
@@ -71,10 +71,10 @@ let rec show_lisp_value : lisp_value -> string = function
   | Bool true          -> "#t"
   | Bool false         -> "#f"
   | PrimitiveFunc _    -> "<primitive>"
-  | Func { func_params = ps; func_varargs = vs } ->
+  | Func { params; varargs; } ->
       "(lambda ("
-      ^ unwords ps
-      ^ (match vs with
+      ^ unwords params
+      ^ (match varargs with
           | Some arg -> " . " ^ arg
           | None     -> "")
       ^ ") ...)"

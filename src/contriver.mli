@@ -16,10 +16,10 @@ type lisp_value =
 and env = (string * lisp_value) list ref
 
 and func_t =
-  { func_params : string list;
-    func_varargs : string option;
-    func_body : lisp_value list;
-    func_closure : env }
+  { params  : string list;
+    varargs : string option;
+    body    : lisp_value list;
+    closure : env; }
 
 and lisp_error =
   | Syntax of string

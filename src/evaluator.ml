@@ -208,10 +208,10 @@ let make_func varargs env params body =
   let closure = ref [] in
   let ps = List.map show_lisp_value params in
   closure := !env;
-  Ok (Func { func_params  = ps;
-             func_varargs = varargs;
-             func_body    = body;
-             func_closure = closure; })
+  Ok (Func { params  = ps;
+             varargs = varargs;
+             body    = body;
+             closure = closure; })
 
 let make_normal_func =
   make_func None
@@ -367,21 +367,21 @@ and apply func args =
   match func with
   | PrimitiveFunc f ->
       f args
-  | Func { func_params; func_varargs; func_body; func_closure } ->
+  | Func { params; varargs; body; closure } ->
       let num = List.length in
-      if (num func_params) <> (num args) && isNone func_varargs then
-        Error (NumArgs (num func_params, args))
+      if (num params) <> (num args) && isNone varargs then
+        Error (NumArgs (num params, args))
       else
         begin
-          let remaining_args = drop (num func_params) args in
+          let remaining_args = drop (num params) args in
           let bind_varargs args env =
             match args with
             | Some arg_name -> bind_vars env [arg_name, List remaining_args]
             | None          -> env
           in
-          bind_vars func_closure (zip func_params args)
-          |> bind_varargs func_varargs
-          |> eval_body func_body
+          bind_vars closure (zip params args)
+          |> bind_varargs varargs
+          |> eval_body body
         end
   | x ->
       Error (TypeMismatch ("func", x))
