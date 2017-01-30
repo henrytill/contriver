@@ -32,20 +32,24 @@ let read_eval_print lexbuf out_channel err_channel env =
       true
 
 let () =
+  let interactive = ref false in
   let continue = ref true in
+  let opt_list = ["-i", Arg.Set interactive, "Run in interactive mode"] in
+  let usage_string = "Usage: " ^ Sys.argv.(0) ^ " [options...]" in
   let in_channel = Pervasives.stdin in
   let out_channel = Pervasives.stdout in
   let err_channel = Pervasives.stderr in
   let lexbuf = Lexing.from_channel in_channel in
   let env = Evaluator.primitive_bindings in
-  flush_str out_channel "Welcome to Contriver\n";
   try
+    Arg.parse opt_list (fun _ -> ()) usage_string;
+    if !interactive then flush_str out_channel "Welcome to Contriver\n";
     while !continue do
-      flush_str out_channel "><> ";
+      if !interactive then flush_str out_channel "><> ";
       continue := read_eval_print lexbuf out_channel err_channel env
     done;
     raise End_of_file
   with
   | End_of_file ->
-      flush_str out_channel "\nGoodbye!\n";
+      if !interactive then flush_str out_channel "\nGoodbye!\n";
       exit 0
