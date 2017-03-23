@@ -21,10 +21,12 @@ let symbol  = ['!' '$' '%' '&' '|' '*' '+' '-' '/' ':' '<' '=' '>' '?' '@' '^' '
 let white   = ([' ' '\t']+)
 let newline = '\r' | '\n' | "\r\n"
 let id      = (['a'-'z' 'A'-'Z' '_'] | symbol) (['a'-'z' 'A'-'Z' '0'-'9' '_'] | symbol)*
+let comment = (';' (_ # ['\r' '\n'])*)
 
 rule read =
   parse
   | white    { read lexbuf }
+  | comment  { next_line lexbuf; read lexbuf }
   | newline  { next_line lexbuf; read lexbuf }
   | "true"   { TRUE }
   | "false"  { FALSE }
