@@ -20,7 +20,7 @@ let float   = digit* frac? exp?
 let symbol  = ['!' '$' '%' '&' '|' '*' '+' '-' '/' ':' '<' '=' '>' '?' '@' '^' '_' '~']
 let white   = ([' ' '\t']+)
 let newline = '\r' | '\n' | "\r\n"
-let id      = (['a'-'z' 'A'-'Z' '_'] | symbol) (['a'-'z' 'A'-'Z' '0'-'9' '_'] | symbol)*
+let id      = (['a'-'z' 'A'-'Z' '_'] | symbol) ((['a'-'z' 'A'-'Z' '0'-'9' '_'] | symbol)*)
 let comment = (';' (_ # ['\r' '\n'])*)
 
 rule read =

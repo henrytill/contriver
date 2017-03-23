@@ -22,8 +22,8 @@ open Contriver
 %%
 
 prog:
-  | x = lisp_value { Some(x) }
-  | EOF            { None    }
+  | x = lisp_value { Some x }
+  | EOF            { None   }
   ;
 
 list_fields:
