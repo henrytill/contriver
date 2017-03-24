@@ -249,6 +249,7 @@ let primitives =
   ; ("string>?",       str_bool_bin_op (>))
   ; ("string<=?",      str_bool_bin_op (<=))
   ; ("string>=?",      str_bool_bin_op (>=))
+  ; ("cons",           cons)
   ; ("car",            car)
   ; ("cdr",            cdr)
   ; ("eqv?",           eqv)
