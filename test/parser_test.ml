@@ -113,6 +113,3 @@ let parser_set = [
   "Parse a float",                                            `Quick, float_test;
   "Parse a string",                                           `Quick, string_test;
 ]
-
-let () =
-  Alcotest.run "Parser" ["parser_set", parser_set;]

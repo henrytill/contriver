@@ -16,8 +16,8 @@ byte: parser
 	$(OCB) src/main.byte
 
 test: parser
-	$(OCB) -I src test/parser_test.byte
-	./parser_test.byte
+	$(OCB) -I src -I test test/tests.byte
+	./tests.byte
 
 deps:
 	@which ocamlfind || $(OPAM_INSTALL) ocamlfind
