@@ -291,12 +291,19 @@ let rec eval env = function
       make_varargs varargs env params body
   | List (Atom "lambda" :: (Atom _ as varargs) :: body) ->
       make_varargs varargs env [] body
+  | List [Atom "eval" ; value] ->
+      eval_expr env value
   | List (f :: args) ->
       eval env f         >>= fun func ->
       eval_list env args >>= fun arg_vals ->
       apply env func arg_vals
   | bad_form ->
       Error (BadSpecialForm ("Unrecognized special form", bad_form))
+
+and eval_expr env expr =
+  match eval env expr with
+  | Ok (List _ as v) -> eval env v
+  | x                -> x
 
 and eval_list env xs =
   try
