@@ -21,7 +21,7 @@ and func_t =
   { params  : string list;
     varargs : string option;
     body    : lisp_value list;
-    closure : env }
+    closure : (string * lisp_value) list }
 
 and lisp_error =
   | Syntax of string

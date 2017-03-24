@@ -20,11 +20,15 @@ let define_var env var value =
   env := (var, value) :: List.remove_assoc var !env;
   Ok value
 
-let bind_vars env bindings =
+let bind_vars bindings env =
   List.iter (fun (var, value) ->
       env := (var, value) :: List.remove_assoc var !env)
     bindings;
   env
+
+let fresh_context env =
+  let bindings = ref !env in
+  bindings
 
 
 (* Unpackers *)
@@ -205,13 +209,8 @@ let contains key xs =
   | Eval_error e  -> Error e
 
 let make_func varargs env params body =
-  let closure = ref [] in
   let ps = List.map show_lisp_value params in
-  closure := !env;
-  Ok (Func { params  = ps;
-             varargs = varargs;
-             body    = body;
-             closure = closure; })
+  Ok (Func { params  = ps; varargs; body; closure = !env; })
 
 let make_normal_func =
   make_func None
@@ -295,7 +294,7 @@ let rec eval env = function
   | List (f :: args) ->
       eval env f         >>= fun func ->
       eval_list env args >>= fun arg_vals ->
-      apply func arg_vals
+      apply env func arg_vals
   | bad_form ->
       Error (BadSpecialForm ("Unrecognized special form", bad_form))
 
@@ -349,7 +348,6 @@ and case_exp env key = function
       Error (BadSpecialForm ("Ill-formed case expression", List (Atom "case" :: key :: clauses)))
 
 and let_exp env bindings body =
-  let closure = ref [] in
   let collect_let_bindings =
     List.fold_left
       (fun acc -> function
@@ -357,14 +355,22 @@ and let_exp env bindings body =
          | _  -> raise (Eval_error (BadSpecialForm ("ill-formed let expression", List bindings))))
       []
   in
+  let eval_values =
+    List.map
+      (fun (var, value) ->
+         match eval env value with
+         | Ok v    -> (var, v)
+         | Error e -> raise (Eval_error e))
+  in
+  let let_bindings = collect_let_bindings bindings |> eval_values in
   try
-    closure := !env;
-    bind_vars closure (collect_let_bindings bindings)
+    fresh_context env
+    |> bind_vars let_bindings
     |> eval_body body
   with Eval_error e ->
     Error e
 
-and apply func args =
+and apply env func args =
   match func with
   | PrimitiveFunc f ->
       f args
@@ -377,10 +383,12 @@ and apply func args =
           let remaining_args = drop (num params) args in
           let bind_varargs args env =
             match args with
-            | Some arg_name -> bind_vars env [arg_name, List remaining_args]
+            | Some arg_name -> bind_vars [arg_name, List remaining_args] env
             | None          -> env
           in
-          bind_vars closure (zip params args)
+          fresh_context env
+          |> bind_vars closure
+          |> bind_vars (zip params args)
           |> bind_varargs varargs
           |> eval_body body
         end
