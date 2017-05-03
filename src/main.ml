@@ -43,7 +43,7 @@ let () =
   let env = Evaluator.primitive_bindings in
   try
     Arg.parse opt_list (fun _ -> ()) usage_string;
-    if !interactive then flush_str out_channel "Welcome to Contriver\n";
+    if !interactive then flush_str out_channel "Welcome to contriver\n";
     while !continue do
       if !interactive then flush_str out_channel "><> ";
       continue := read_eval_print lexbuf out_channel err_channel env

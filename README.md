@@ -22,7 +22,7 @@ $ make
 $ make test
   ..
 $ ./main.native -i
-Welcome to Contriver
+Welcome to contriver
 ><> (define add1 (lambda (x) (+ x 1)))
 (lambda (x) ...)
 ><> (add1 41)
