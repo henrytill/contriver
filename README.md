@@ -16,11 +16,11 @@ To build and use `contriver`, you will need:
 
 ```sh
 $ make deps
-  ..
+  ...
 $ make
-  ..
+  ...
 $ make test
-  ..
+  ...
 $ ./main.native -i
 Welcome to contriver
 ><> (define add1 (lambda (x) (+ x 1)))
