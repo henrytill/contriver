@@ -2,7 +2,7 @@ OCB_FLAGS    = -use-ocamlfind -use-menhir
 OCB          = ocamlbuild $(OCB_FLAGS)
 OPAM_INSTALL = opam install -y
 
-DEPENDENCIES = alcotest
+DEPENDENCIES = alcotest result
 
 all: native
 

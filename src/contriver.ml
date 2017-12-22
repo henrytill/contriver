@@ -33,23 +33,19 @@ and lisp_error =
   | Default of string
   | Undefined
 
-and ('a, 'b) result =
-  | Ok of 'a
-  | Error of 'b
-
-and 'a throws_error = ('a, lisp_error) result
+and 'a throws_error = ('a, lisp_error) Result.result
 
 
 (* Utility functions *)
 
 let (>>=) result f =
   match result with
-  | Ok x           -> f x
-  | Error _ as err -> err
+  | Result.Ok x           -> f x
+  | Result.Error _ as err -> err
 
 let option_to_result error = function
-  | Some x -> Ok x
-  | None   -> Error error
+  | Some x -> Result.Ok x
+  | None   -> Result.Error error
 
 
 (* Printers *)

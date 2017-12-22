@@ -31,17 +31,13 @@ and lisp_error =
   | Default of string
   | Undefined
 
-and ('a, 'b) result =
-  | Ok of 'a
-  | Error of 'b
-
-and 'a throws_error = ('a, lisp_error) result
+and 'a throws_error = ('a, lisp_error) Result.result
 
 val (>>=) : 'a throws_error -> ('a -> 'b throws_error) -> 'b throws_error
 
 val show_lisp_value : lisp_value -> string
 
-val option_to_result : 'a -> 'b option -> ('b, 'a) result
+val option_to_result : 'a -> 'b option -> ('b, 'a) Result.result
 
 val show_list_of_lisp_values : lisp_value list -> string
 

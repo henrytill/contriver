@@ -1,4 +1,4 @@
-PKG alcotest num
+PKG alcotest num result
 S src
 S test
 B _build/**

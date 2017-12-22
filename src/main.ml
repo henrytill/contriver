@@ -8,26 +8,26 @@ let parse_with_error lexbuf =
   let open Contriver in
   try
     let ast = Parser.prog Lexer.read lexbuf in
-    Ok (ast)
+    Result.Ok (ast)
   with
-  | Lexer.SyntaxError msg -> Error (Syntax msg)
-  | Parser.Error          -> Error (Syntax "ill-formed expression")
+  | Lexer.SyntaxError msg -> Result.Error (Syntax msg)
+  | Parser.Error          -> Result.Error (Syntax "ill-formed expression")
 
 let read_eval_print lexbuf out_channel err_channel env =
   let open Contriver in
   let out_formatter = Format.formatter_of_out_channel out_channel in
   let err_formatter = Format.formatter_of_out_channel err_channel in
   match parse_with_error lexbuf with
-  | Error e ->
+  | Result.Error e ->
       lisp_error_printer err_formatter e;
       true
-  | Ok(None)   ->
+  | Result.Ok None ->
       false
-  | Ok(Some v) ->
+  | Result.Ok (Some v) ->
       begin
         match Evaluator.eval env v with
-        | Ok v    -> lisp_value_printer out_formatter v
-        | Error e -> lisp_error_printer err_formatter e
+        | Result.Ok v    -> lisp_value_printer out_formatter v
+        | Result.Error e -> lisp_error_printer err_formatter e
       end;
       true
 
