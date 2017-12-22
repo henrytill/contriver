@@ -1,38 +1,38 @@
-open Contriver
+open AST
 
 let parse_single_atom () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (Atom "atom"))
     (Util.test_parse "atom")
 
 let parse_quoted_symbol () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (List [Atom "quote"; Atom "atom"]))
     (Util.test_parse "'atom")
 
 let parse_list_of_single_atom () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (List [Atom "bang"]))
     (Util.test_parse "(bang)")
 
 let parse_function_application () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (List [Atom "+"; Number 12; Number 13]))
     (Util.test_parse "(+ 12 13)")
 
 let parse_list_of_numbers () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (List [Atom "list"; Number 12; Number 13]))
     (Util.test_parse "(list 12 13)")
 
 let parse_vector_of_numbers () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (Vector [|Number 12; Number 13|]))
     (Util.test_parse "#(12 13)")
 
@@ -43,44 +43,44 @@ let raise_for_bad_vector () =
     (fun () -> ignore (Util.test_parse "# (12 13)"))
 
 let parse_quoted_list () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (List [Atom "quote"; List [Number 12; Number 13]]))
     (Util.test_parse "'(12 13)")
 
 let parse_quoted_list_2 () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (List [Atom "quote"; List [Number 12; Number 13]]))
     (Util.test_parse "' (12 13)")
 
 let parse_dotted_list () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (DottedList ([Number 12], Number 13)))
     (Util.test_parse "(12 . 13)")
 
 let parse_dotted_list_2 () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (DottedList ([Number 12; Number 14], Number 13)))
     (Util.test_parse "(12 14 . 13)")
 
 let number_test () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (Number 42))
     (Util.test_parse "42")
 
 let float_test () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (Float 42.42))
     (Util.test_parse "42.42")
 
 let string_test () =
-  Alcotest.(check (option Util.lisp_value_t))
-    "same lisp_value list"
+  Alcotest.(check (option Util.sexpr_t))
+    "same sexpr list"
     (Some (String "goliath"))
     (Util.test_parse "\"goliath\"")
 

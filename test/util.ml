@@ -12,27 +12,15 @@ let read_file file =
     close_in ic;
     Buffer.contents buf
 
-let lisp_value_t =
+let sexpr_t =
   let module M = struct
-    type t        = Contriver.lisp_value
+    type t        = AST.sexpr
     let equal x y = x = y
-    let pp        = Contriver.lisp_value_printer
+    let pp        = AST.Printer.sexpr_printer
   end in
   (module M : Alcotest.TESTABLE with type t = M.t)
 
-let lisp_error_t =
-  let module M = struct
-    type t        = Contriver.lisp_error
-    let equal x y = x = y
-    let pp        = Contriver.lisp_error_printer
-  end in
-  (module M : Alcotest.TESTABLE with type t = M.t)
-
-let test_parse s : Contriver.lisp_value option =
+let test_parse s : AST.sexpr option =
   let lexbuf = Lexing.from_string s in
   let ast    = Parser.prog Lexer.read lexbuf in
   ast
-
-let test_eval env = function
-  | None   -> Result.Error (Contriver.Syntax "Could not parse expression")
-  | Some v -> Evaluator.eval env v
