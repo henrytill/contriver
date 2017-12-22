@@ -1,4 +1,4 @@
-PKG alcotest num result
+PKG alcotest num result llvm llvm.analysis
 S src
 S test
 B _build/**
