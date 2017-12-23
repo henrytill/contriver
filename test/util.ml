@@ -12,6 +12,28 @@ let read_file file =
     close_in ic;
     Buffer.contents buf
 
+let match_regexp_in_process_output cmd regexp =
+  let in_channel    = Unix.open_process_in cmd in
+  let rec search_loop ic r =
+    try
+      let line = input_line ic in
+      if Str.string_match r line 0 then
+        begin
+          ignore (Unix.close_process_in ic);
+          Some (Str.matched_group 1 line)
+        end
+      else
+        search_loop ic r
+    with
+    | End_of_file ->
+        ignore (Unix.close_process_in ic);
+        None
+    | exn ->
+        ignore (Unix.close_process_in ic);
+        raise exn
+  in
+  search_loop in_channel regexp
+
 let sexpr_t =
   let module M = struct
     type t        = AST.sexpr

@@ -1,3 +1,4 @@
-true     : bin_annot
-<src/*>  : package(num), package(result), package(llvm), package(llvm.analysis)
-<test/*> : package(num), package(alcotest)
+true     : bin_annot, package(num), \
+           package(llvm), package(llvm.analysis), package(llvm.target), package(llvm.all_backends)
+<src/*>  : package(result)
+<test/*> : package(alcotest), package(str), package(unix)
