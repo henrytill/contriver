@@ -11,15 +11,19 @@ let parse_with_error lexbuf =
   | Parser.Error          -> Result.Error "parse error"
 
 let read_eval_print lexbuf out_channel err_channel =
-  let out_formatter = Format.formatter_of_out_channel out_channel in
   match parse_with_error lexbuf with
   | Result.Error e ->
       true
   | Result.Ok None ->
       false
   | Result.Ok (Some v) ->
-      AST.Printer.sexpr_printer out_formatter v;
-      true
+      try
+        let func = Conversion.sexpr_to_func v in
+        flush_str out_channel (Llvm.string_of_llvalue (Codegen.codegen_func func));
+        true
+      with e ->
+        flush_str err_channel (Printexc.to_string e ^ "\n");
+        true
 
 let () =
   let interactive  = ref false in
@@ -40,5 +44,6 @@ let () =
     raise End_of_file
   with
   | End_of_file ->
+      flush_str out_channel ("\n" ^ Llvm.string_of_llmodule Codegen.the_module);
       if !interactive then flush_str out_channel "\nGoodbye!\n";
       exit 0
