@@ -5,4 +5,4 @@ let average =
 
 let () =
   let _ = Codegen.codegen_func average in
-  Emit.emit Codegen.the_module Sys.argv.(1)
+  Emit.emit_module Codegen.the_module Sys.argv.(1)

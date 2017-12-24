@@ -3,7 +3,7 @@ exception Error of string
 let get_target_triple =
   Llvm_target.Target.default_triple
 
-let emit mdle file =
+let emit_module mdle file =
   let open Llvm_target in
   (* 8.2 Choosing a target *)
   Llvm_all_backends.initialize ();
@@ -19,4 +19,4 @@ let emit mdle file =
     (* 8.5 Emit Object Code *)
     TargetMachine.emit_to_file mdle CodeGenFileType.ObjectFile file machine
   else
-    raise (Error "this target does not have an associated target machine")
+    raise (Error "target does not have an associated target machine")
