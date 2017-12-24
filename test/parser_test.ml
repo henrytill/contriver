@@ -21,19 +21,19 @@ let parse_list_of_single_atom () =
 let parse_function_application () =
   Alcotest.(check (option Util.sexpr_t))
     "same sexpr list"
-    (Some (List [Atom "+"; Number 12; Number 13]))
+    (Some (List [Atom "+"; Int 12; Int 13]))
     (Util.test_parse "(+ 12 13)")
 
 let parse_list_of_numbers () =
   Alcotest.(check (option Util.sexpr_t))
     "same sexpr list"
-    (Some (List [Atom "list"; Number 12; Number 13]))
+    (Some (List [Atom "list"; Int 12; Int 13]))
     (Util.test_parse "(list 12 13)")
 
 let parse_vector_of_numbers () =
   Alcotest.(check (option Util.sexpr_t))
     "same sexpr list"
-    (Some (Vector [|Number 12; Number 13|]))
+    (Some (Vector [|Int 12; Int 13|]))
     (Util.test_parse "#(12 13)")
 
 let raise_for_bad_vector () =
@@ -45,31 +45,31 @@ let raise_for_bad_vector () =
 let parse_quoted_list () =
   Alcotest.(check (option Util.sexpr_t))
     "same sexpr list"
-    (Some (List [Atom "quote"; List [Number 12; Number 13]]))
+    (Some (List [Atom "quote"; List [Int 12; Int 13]]))
     (Util.test_parse "'(12 13)")
 
 let parse_quoted_list_2 () =
   Alcotest.(check (option Util.sexpr_t))
     "same sexpr list"
-    (Some (List [Atom "quote"; List [Number 12; Number 13]]))
+    (Some (List [Atom "quote"; List [Int 12; Int 13]]))
     (Util.test_parse "' (12 13)")
 
 let parse_dotted_list () =
   Alcotest.(check (option Util.sexpr_t))
     "same sexpr list"
-    (Some (DottedList ([Number 12], Number 13)))
+    (Some (DottedList ([Int 12], Int 13)))
     (Util.test_parse "(12 . 13)")
 
 let parse_dotted_list_2 () =
   Alcotest.(check (option Util.sexpr_t))
     "same sexpr list"
-    (Some (DottedList ([Number 12; Number 14], Number 13)))
+    (Some (DottedList ([Int 12; Int 14], Int 13)))
     (Util.test_parse "(12 14 . 13)")
 
 let number_test () =
   Alcotest.(check (option Util.sexpr_t))
     "same sexpr list"
-    (Some (Number 42))
+    (Some (Int 42))
     (Util.test_parse "42")
 
 let float_test () =
@@ -92,10 +92,10 @@ let parser_set =
   ; "Parse a list of numbers",                                  `Quick, parse_list_of_numbers
   ; "Parse a vector of numbers",                                `Quick, parse_vector_of_numbers
   ; "Raise a SyntaxError for an improperly constructed vector", `Quick, raise_for_bad_vector
-  ; "Parse a quoted list of numbers",                           `Quick, parse_quoted_list
-  ; "Parse a quoted list of numbers (2)",                       `Quick, parse_quoted_list_2
-  ; "Parse a dotted list of numbers",                           `Quick, parse_dotted_list
-  ; "Parse a dotted list of numbers (2)",                       `Quick, parse_dotted_list_2
+  ; "Parse a quoted list of ints",                              `Quick, parse_quoted_list
+  ; "Parse a quoted list of ints (2)",                          `Quick, parse_quoted_list_2
+  ; "Parse a dotted list of ints",                              `Quick, parse_dotted_list
+  ; "Parse a dotted list of ints (2)",                          `Quick, parse_dotted_list_2
   ; "Parse a number",                                           `Quick, number_test
   ; "Parse a float",                                            `Quick, float_test
   ; "Parse a string",                                           `Quick, string_test

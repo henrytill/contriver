@@ -4,7 +4,7 @@ type sexpr =
   | Vector of sexpr array
   | Atom of string
   | String of string
-  | Number of int
+  | Int of int
   | Float of float
   | Bool of bool
 

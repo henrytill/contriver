@@ -39,7 +39,7 @@ sexpr:
   | UNQUOTE; x = sexpr                                        { List [Atom "unquote"; x]    }
   | a = ATOM                                                  { Atom a                      }
   | s = STRING                                                { String s                    }
-  | i = INT                                                   { Number i                    }
+  | i = INT                                                   { Int i                       }
   | x = FLOAT                                                 { Float x                     }
   | TRUE                                                      { Bool true                   }
   | FALSE                                                     { Bool false                  }

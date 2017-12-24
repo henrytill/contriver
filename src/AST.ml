@@ -4,7 +4,7 @@ type sexpr =
   | Vector of sexpr array
   | Atom of string
   | String of string
-  | Number of int
+  | Int of int
   | Float of float
   | Bool of bool
 
@@ -29,7 +29,7 @@ module Printer = struct
     | Vector xs          -> "#(" ^ show_list_of_sexprs (Array.to_list xs)        ^ ")"
     | Atom name          -> name
     | String x           -> "\"" ^ x ^ "\""
-    | Number x           -> string_of_int x
+    | Int x              -> string_of_int x
     | Float x            -> string_of_float x
     | Bool true          -> "#t"
     | Bool false         -> "#f"
