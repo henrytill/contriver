@@ -24,7 +24,7 @@ _build/examples/output.o: simple_emit.native
 average_main: _build/examples/output.o examples/average_main.cpp
 	clang++ examples/average_main.cpp $< -o $@
 
-tests.native: parser src/* average_main
+tests.native: parser average_main
 	$(OCB) -I src test/$@
 
 deps:
