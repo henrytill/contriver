@@ -8,6 +8,11 @@ all: main.native
 
 test: tests.native
 	./tests.native
+	@echo
+	@echo Cleaning up...
+	rm -f average_main
+	rm -f _build/examples/output.o
+	rm -f simple_emit.native
 
 parser:
 	$(OCB) src/parser.mli
