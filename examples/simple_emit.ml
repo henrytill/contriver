@@ -4,5 +4,7 @@ let average =
             Binary ('*', Binary ('+', Variable "x", Variable "y"), Number 0.5))
 
 let () =
-  let _ = Codegen.codegen_func average in
-  Emit.emit_module Codegen.the_module Sys.argv.(1)
+  let open Codegen in
+  let env = create_env () in
+  let _   = codegen_func env average in
+  Emit.emit_module env.the_module Sys.argv.(1)

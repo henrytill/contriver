@@ -1,7 +1,14 @@
-val the_module    : Llvm.llmodule
+type env =
+  { context            : Llvm.llcontext
+  ; mutable the_module : Llvm.llmodule
+  ; builder            : Llvm.llbuilder
+  ; named_values       : (string, Llvm.llvalue) Hashtbl.t
+  }
 
-val codegen_expr  : AST.expr  -> Llvm.llvalue
+val create_env : unit -> env
 
-val codegen_proto : AST.proto -> Llvm.llvalue
+val codegen_expr : env -> AST.expr  -> Llvm.llvalue
 
-val codegen_func  : AST.func  -> Llvm.llvalue
+val codegen_proto : env -> AST.proto -> Llvm.llvalue
+
+val codegen_func : env -> AST.func  -> Llvm.llvalue
