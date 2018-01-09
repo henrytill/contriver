@@ -13,7 +13,7 @@ let read_file file =
     Buffer.contents buf
 
 let match_regexp_in_process_output cmd regexp =
-  let in_channel    = Unix.open_process_in cmd in
+  let in_channel = Unix.open_process_in cmd in
   let rec search_loop ic r =
     try
       let line = input_line ic in
