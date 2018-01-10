@@ -18,8 +18,8 @@ let read_eval_print lexbuf out_channel err_channel env =
       false
   | Result.Ok (Some v) ->
       try
-        let func = Conversion.sexpr_to_func v in
-        flush_str out_channel (Llvm.string_of_llvalue (Codegen.codegen_func env func));
+        let llv = Conversion.sexpr_to_llvalue env v in
+        flush_str out_channel (Llvm.string_of_llvalue llv);
         true
       with e ->
         flush_str err_channel (Printexc.to_string e ^ "\n");

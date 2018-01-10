@@ -13,13 +13,7 @@ let create_proto = function
   | _ ->
       raise (Error "invalid proto")
 
-let rec sexpr_to_func = function
-  | List [Atom "define"; List proto; body] ->
-      Function (create_proto proto, sexpr_to_expr body)
-  | _ ->
-      raise (Error "unimplemented")
-
-and sexpr_to_expr = function
+let rec sexpr_to_expr = function
   | List [Atom "+"; lhs; rhs] ->
       Binary ('+', sexpr_to_expr lhs, sexpr_to_expr rhs)
   | List [Atom "-"; lhs; rhs] ->
@@ -37,5 +31,15 @@ and sexpr_to_expr = function
       Number (float_of_int i)
   | Float f ->
       Number f
+  | _ ->
+      raise (Error "unimplemented")
+
+let sexpr_to_llvalue env = function
+  | List [Atom "define"; List proto; body] ->
+      let func = Function (create_proto proto, sexpr_to_expr body) in
+      Codegen.codegen_func env func
+  | List [Atom "extern"; List proto] ->
+      let proto = create_proto proto in
+      Codegen.codegen_proto env proto
   | _ ->
       raise (Error "unimplemented")
