@@ -22,6 +22,8 @@ let rec sexpr_to_expr = function
       Binary ('*', sexpr_to_expr lhs, sexpr_to_expr rhs)
   | List [Atom "<"; lhs; rhs] ->
       Binary ('<', sexpr_to_expr lhs, sexpr_to_expr rhs)
+  | List [Atom "if"; predicate; consequent; alternate] ->
+      If (sexpr_to_expr predicate, sexpr_to_expr consequent, sexpr_to_expr alternate)
   | List (Atom f :: args) ->
       let args_arr = Array.of_list (List.map (fun a -> sexpr_to_expr a) args) in
       Call (f, args_arr)
