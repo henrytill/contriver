@@ -15,6 +15,9 @@ let create_env () =
   ; named_values = Hashtbl.create 10
   }
 
+let get_module env =
+  env.the_module
+
 let double_type env =
   Llvm.double_type env.context
 

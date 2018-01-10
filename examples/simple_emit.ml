@@ -7,4 +7,4 @@ let () =
   let open Codegen in
   let env = create_env () in
   let _   = codegen_func env average in
-  Emit.emit_module env.the_module Sys.argv.(1)
+  Emit.emit_module (get_module env) Sys.argv.(1)

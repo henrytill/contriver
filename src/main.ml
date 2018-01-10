@@ -45,6 +45,6 @@ let () =
     raise End_of_file
   with
   | End_of_file ->
-      flush_str out_channel ("\n" ^ Llvm.string_of_llmodule env.Codegen.the_module);
+      flush_str out_channel ("\n" ^ Llvm.string_of_llmodule (Codegen.get_module env));
       if !interactive then flush_str out_channel "\nGoodbye!\n";
       exit 0
