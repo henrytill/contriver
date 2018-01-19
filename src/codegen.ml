@@ -61,44 +61,34 @@ and codegen_call env callee args =
   Llvm.build_call callee args "calltmp" env.builder
 
 and codegen_if env cond then_ else_ =
-  let cond = codegen_expr env cond in
-  (* Convert condition to a bool by comparing equal to 0.0 *)
+  let cond     = codegen_expr env cond in
   let zero     = Llvm.const_float (double_type env) 0.0 in
   let cond_val = Llvm.build_fcmp Llvm.Fcmp.One cond zero "ifcond" env.builder in
-  (* Grab the first block so that we might later add the conditional branch
-   * to it at the end of the function. *)
+  (* Grab the first block *)
   let start_bb     = Llvm.insertion_block env.builder in
   let the_function = Llvm.block_parent start_bb in
-  let then_bb      = Llvm.append_block env.context "then" the_function in
-  (* Emit 'then' value *)
-  Llvm.position_at_end then_bb env.builder;
-  let then_val = codegen_expr env then_ in
-  (* Codegen of 'then' can change the current block, update then_bb for the phi.
-   * We create a new name because one is used for the phi node, and the
-   * other is used for the conditional branch *)
+  (* Emit 'then' *)
+  let then_bb     = Llvm.append_block env.context "then" the_function in
+  let ()          = Llvm.position_at_end then_bb env.builder in
+  let then_val    = codegen_expr env then_ in
   let new_then_bb = Llvm.insertion_block env.builder in
-  (* Emit 'else' value. *)
-  let else_bb = Llvm.append_block env.context "else" the_function in
-  Llvm.position_at_end else_bb env.builder;
-  let else_val = codegen_expr env else_ in
-  (* Codegen of 'else' can change the current block, update else_bb for the
-   * phi. *)
+  (* Emit 'else' *)
+  let else_bb     = Llvm.append_block env.context "else" the_function in
+  let ()          = Llvm.position_at_end else_bb env.builder in
+  let else_val    = codegen_expr env else_ in
   let new_else_bb = Llvm.insertion_block env.builder in
   (* Emit merge block. *)
   let merge_bb = Llvm.append_block env.context "ifcont" the_function in
-  Llvm.position_at_end merge_bb env.builder;
+  let ()       = Llvm.position_at_end merge_bb env.builder in
   let incoming = [(then_val, new_then_bb); (else_val, new_else_bb)] in
   let phi      = Llvm.build_phi incoming "iftmp" env.builder in
-  (* Return to the start block to add the conditional branch. *)
+  (* Return to the start block and add the conditional branch. *)
   Llvm.position_at_end start_bb env.builder;
   ignore (Llvm.build_cond_br cond_val then_bb else_bb env.builder);
-  (* Set a unconditional branch at the end of the 'then' block and the
-   * 'else' block to the 'merge' block. *)
   Llvm.position_at_end new_then_bb env.builder;
   ignore (Llvm.build_br merge_bb env.builder);
   Llvm.position_at_end new_else_bb env.builder;
   ignore (Llvm.build_br merge_bb env.builder);
-  (* Finally, set the builder to the end of the merge block. *)
   Llvm.position_at_end merge_bb env.builder;
   phi
 
