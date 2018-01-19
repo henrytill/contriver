@@ -1,0 +1,6 @@
+(extern (foo))
+
+(extern (bar))
+
+(define (baz x)
+  (if x (foo) (bar)))
