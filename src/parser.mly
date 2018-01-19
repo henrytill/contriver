@@ -23,7 +23,7 @@ open AST
 
 prog:
   | x = sexpr { Some x }
-  | EOF            { None   }
+  | EOF       { None   }
   ;
 
 list_fields:
