@@ -12,7 +12,6 @@ test: tests.native
 	@echo Cleaning up...
 	rm -f average_main
 	rm -f _build/examples/output.o
-	rm -f simple_emit.native
 
 parser:
 	$(OCB) src/parser.mli
@@ -20,16 +19,7 @@ parser:
 main.native: parser
 	$(OCB) src/$@
 
-simple_emit.native:
-	$(OCB) -I src examples/$@
-
-_build/examples/output.o: simple_emit.native
-	./$< $@
-
-average_main: _build/examples/output.o examples/average_main.cpp
-	clang++ examples/average_main.cpp $< -o $@
-
-tests.native: parser average_main
+tests.native: parser
 	$(OCB) -I src test/$@
 
 deps:
