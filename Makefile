@@ -2,7 +2,7 @@ OCB_FLAGS    = -use-ocamlfind -use-menhir -classic-display
 OCB          = ocamlbuild $(OCB_FLAGS)
 OPAM_INSTALL = opam install -y
 
-DEPENDENCIES = alcotest result llvm.4.0.0
+DEPENDENCIES = alcotest num result stdlib-shims llvm.6.0.0
 
 all: main.native
 

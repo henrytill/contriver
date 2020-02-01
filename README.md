@@ -8,7 +8,7 @@ To build and use `contriver`, you will need:
 * [OCaml](https://ocaml.org/) (version 4.02 or greater)
 * [opam](https://opam.ocaml.org/)
 * [Make](https://www.gnu.org/software/make/)
-* [LLVM](http://llvm.org/) (version 4.0.x)
+* [LLVM](http://llvm.org/) (version 6.0.x)
 
 ## Building
 

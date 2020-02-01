@@ -1,4 +1,4 @@
-PKG alcotest num result llvm llvm.analysis
+PKG alcotest num result stdlib-shims llvm llvm.analysis
 S examples
 S src
 S test

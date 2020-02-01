@@ -1,16 +1,11 @@
+os: linux
+
+dist: bionic
+
 language: c
 
-sudo: required
-
-before_install:
-  - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-  - sudo sh -c "echo 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-4.0 main' >> /etc/apt/sources.list"
-  - sudo sh -c "echo 'deb-src http://apt.llvm.org/trusty/ llvm-toolchain-trusty-4.0 main' >> /etc/apt/sources.list"
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update -q
-
 install:
-  - sudo apt-get install -yy llvm-4.0 llvm-4.0-dev libllvm4.0
+  - sudo apt-get install -yy llvm-6.0-dev
   - wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-ocaml.sh
   - bash -ex .travis-ocaml.sh
   - eval $(opam config env)
@@ -18,8 +13,12 @@ install:
 script: make deps && make && make test
 
 env:
-  matrix:
+  jobs:
     - OCAML_VERSION=4.02
     - OCAML_VERSION=4.03
     - OCAML_VERSION=4.04
     - OCAML_VERSION=4.05
+    - OCAML_VERSION=4.06
+    - OCAML_VERSION=4.07
+    - OCAML_VERSION=4.08
+    - OCAML_VERSION=4.09

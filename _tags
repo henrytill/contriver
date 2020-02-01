@@ -1,4 +1,4 @@
 true     : bin_annot, package(num), \
            package(llvm), package(llvm.analysis), package(llvm.target), package(llvm.all_backends)
-<src/*>  : package(result)
+<src/*>  : package(result), package(stdlib-shims)
 <test/*> : package(alcotest), package(str), package(unix)

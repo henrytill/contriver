@@ -21,6 +21,4 @@ let linking_test () =
        (Str.regexp "average of 3.0 and 4.0: \\([^ ]*\\)"))
 
 let emit_set =
-  [ "Get the target triple", `Quick, target_triple_test
-  ; "Link an emission",      `Quick, linking_test
-  ]
+  [ "Link an emission", `Quick, linking_test ]

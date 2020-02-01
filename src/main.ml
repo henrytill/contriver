@@ -30,9 +30,9 @@ let () =
   let continue     = ref true in
   let opt_list     = ["-i", Arg.Set interactive, "Run in interactive mode"] in
   let usage_string = "Usage: " ^ Sys.argv.(0) ^ " [options...]" in
-  let in_channel   = Pervasives.stdin in
-  let out_channel  = Pervasives.stdout in
-  let err_channel  = Pervasives.stderr in
+  let in_channel   = Stdlib.stdin in
+  let out_channel  = Stdlib.stdout in
+  let err_channel  = Stdlib.stderr in
   let lexbuf       = Lexing.from_channel in_channel in
   let env          = Codegen.create_env () in
   try
